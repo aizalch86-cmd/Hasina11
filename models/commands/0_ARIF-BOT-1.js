@@ -25,7 +25,7 @@ module.exports.config = {
 protectCredits(module.exports.config);
 
 // 🔑 OPENROUTER API KEY (APNI REAL KEY LAGAO)
-const OPENROUTER_API_KEY = "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";
+const OPENROUTER_API_KEY = "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";
 
 // 🌐 API URL
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
