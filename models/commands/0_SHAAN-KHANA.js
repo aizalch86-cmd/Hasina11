@@ -3,7 +3,7 @@ module.exports.config = {
   name: "Khana",
     version: "1.1.1",
   hasPermssion: 0,
-  credits: "ARIF BABU", 
+  credits: "SHAAN BABU", 
   description: "Just Respond",
   usePrefix: true,
   commandCategory: "no prefix",
