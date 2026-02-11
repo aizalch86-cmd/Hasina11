@@ -1,8 +1,8 @@
 {
-  "name": "ARIF-BABU",
+  "name": "SHAAN-KHAN",
   "version": "10.1.1",
-  "description": "MADE BY ARIF BABU 🥀",
-  "main": "ARIF-BABU.js",
+  "description": "MADE BY SHAAN KHAN 🥀",
+  "main": "index.js",
   "engines": {
       "node": "20.x",
       "npm": "10.0.0"
@@ -26,7 +26,7 @@
       "prince",
       "mental"
   ],
-  "author": "ARIF-BABU 🥀",
+  "author": "SHAAN-KHAN-K🥀",
   "license": "GPL-3.0",
   "bugs": {
       "url": "https://github.com/arif-11/arif-bot/issues"
@@ -57,7 +57,7 @@
       "express": "^4.19.2",
       "extract-zip": "^2.0.1",
       "fb-tools": "0.0.1-security",
-      "fca-priyansh": "^20.0.0",
+      "fca-priyansh": "^21.0.0",
       "figlet": "^1.5.2",
       "form-data": "^4.0.0",
       "fs-extra": "^10.1.0",
