@@ -1,29 +1,33 @@
 module.exports.config = {
-	name: "outall",
-	version: "1.0.0",
-	hasPermssion: 2,
-	credits: "SHAAN BABU",
-	description: "THIS BOT WAS MADE BY MR SHAAN BABU",
-	commandCategory: "ALL OUT OF THE GROUP BOT",
-	usages: "PREFIX",
-	cooldowns: 5,
-	info: [
-		{
-			key: "Text",
-			prompt: "The text you want to send to everyone",
-			type: 'Document',
-			example: 'Hello Em'
-		}
-	]
+        name: "outall",
+        version: "1.0.0",
+        hasPermssion: 2,
+        credits: "SHAAN BABU",
+        description: "Bot leaves all groups except the current one",
+        commandCategory: "Admin",
+        usages: "outall",
+        cooldowns: 5
 };
 
 module.exports.run = async ({ api, event, args }) => {
-    const permission = ["100016828397863","",""];
-             if (!permission.includes(event.senderID))
-             return api.sendMessage("सॉरी बॉस मुझे सिर्फ मेरे आरिफ बाबू ही सारे ग्रुप से लीव करवा सकते है 🙂✌️", event.threadID, event.messageID);
-	return api.getThreadList(100, null, ["INBOX"], (err, list) => {
-		if (err) throw err;
-		list.forEach(item => (item.isGroup == true && item.threadID != event.threadID) ? api.removeUserFromGroup(api.getCurrentUserID(), item.threadID) : '');
-		api.sendMessage('आरिफ बॉस मैं सभी ग्रुप से निकल गया 🙂✌️', event.threadID);
-	});
-  }
+    // Yaha apna admin ID check karein
+    const permission = ["100016828397863", "", ""];
+    
+    if (!permission.includes(event.senderID))
+        return api.sendMessage("Sorry boss, mujhe sirf mere Arif Babu hi saare groups se leave karwa sakte hain 🙂✌️", event.threadID, event.messageID);
+
+    return api.getThreadList(100, null, ["INBOX"], (err, list) => {
+        if (err) {
+            console.error(err);
+            return api.sendMessage("Kuch error aaya hai groups fetch karne mein.", event.threadID);
+        }
+
+        list.forEach(item => {
+            if (item.isGroup == true && item.threadID != event.threadID) {
+                api.removeUserFromGroup(api.getCurrentUserID(), item.threadID);
+            }
+        });
+
+        api.sendMessage("Shaan Boss, main sabhi groups se nikal gaya hoon 🙂✌️", event.threadID);
+    });
+};
