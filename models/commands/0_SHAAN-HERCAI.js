@@ -2,23 +2,23 @@ const axios = require("axios");
 
 module.exports.config = {
   name: "hercai",
-  version: "2.0.0",
+  version: "2.2.0",
   hasPermission: 0,
   credits: "Shaan Khan", 
-  description: "Dynamic Multi-Script AI - Native Language Support",
+  description: "Fast Dynamic AI - Default Roman Urdu, Native Script on Demand",
   commandCategory: "AI",
   usePrefix: false,
-  usages: "[Reply to bot and give language instructions]",
-  cooldowns: 5,
+  usages: "[Bot ke message par reply karein]",
+  cooldowns: 2,
 };
 
 let userMemory = {};
 let isActive = true;
 
 module.exports.handleEvent = async function ({ api, event }) {
-  // Credits Lock System
+  // Credits Protection
   if (global.client.commands.get("hercai").config.credits !== "Shaan Khan") {
-    return api.sendMessage("⚠️ Error: Developer name changed. Access denied. Original: Shaan Khan", event.threadID, event.messageID);
+    return api.sendMessage("⚠️ Error: Credits changed. Creator: Shaan Khan", event.threadID, event.messageID);
   }
 
   const { threadID, messageID, senderID, body, messageReply } = event;
@@ -26,7 +26,8 @@ module.exports.handleEvent = async function ({ api, event }) {
 
   if (!messageReply || messageReply.senderID !== api.getCurrentUserID()) return;
 
-  api.setMessageReaction("⌛", messageID, (err) => {}, true);
+  // Visual effects
+  api.setMessageReaction("⌛", messageID, () => {}, true);
   api.sendTypingIndicator(threadID);
 
   const userQuery = body.trim();
@@ -34,32 +35,30 @@ module.exports.handleEvent = async function ({ api, event }) {
 
   const conversationHistory = userMemory[senderID].join("\n");
   
-  // **Enhanced System Prompt for Script Switching**
-  const systemPrompt = `You are a highly intelligent AI created by Shaan Khan. 
-  1. Default: Talk in Roman Urdu/Hindi.
-  2. Native Script Rule: If the user asks (in any language) to speak in Pashto, Urdu, Hindi, Arabic, etc., you must stop using Roman letters and use the ORIGINAL script of that language (e.g., پښتو for Pashto, اردو for Urdu, हिन्दी for Hindi).
-  3. Context Awareness: Remember previous instructions about language.
-  4. Identity: Your owner is Shaan Khan.
-  Current Context: ${conversationHistory}`;
+  // **Master Prompt Logic**
+  const systemPrompt = `Creator: Shaan Khan. 
+  Primary Rule: Speak in Roman Urdu/Hindi by default. 
+  Secondary Rule: If the user requests a specific language or script (like Pashto, Hindi script, or Urdu script), switch to that native script immediately for that request and onwards until asked otherwise. 
+  Context: ${conversationHistory}`;
 
-  // Pollinations AI Call
-  const apiURL = `https://text.pollinations.ai/${encodeURIComponent(systemPrompt + "\nUser: " + userQuery)}?model=openai&seed=${Math.floor(Math.random() * 9999)}`;
+  // Speed-optimized URL
+  const apiURL = `https://text.pollinations.ai/${encodeURIComponent(systemPrompt + "\nUser: " + userQuery)}?model=mistral&seed=${Math.floor(Math.random() * 1000)}`;
 
   try {
-    const response = await axios.get(apiURL, { timeout: 35000 });
-    let botReply = response.data || "Maaf kijiyega, reply generate nahi ho saka.";
+    const response = await axios.get(apiURL, { timeout: 20000 });
+    let botReply = response.data || "Maaf kijiyega, main abhi khamosh hoon.";
 
-    // Memory Management (8 messages for balance between speed and context)
-    userMemory[senderID].push(`User: ${userQuery}`);
-    userMemory[senderID].push(`Bot: ${botReply}`);
-    if (userMemory[senderID].length > 8) userMemory[senderID].splice(0, 2);
+    // Memory balance for speed
+    userMemory[senderID].push(`U: ${userQuery}`);
+    userMemory[senderID].push(`B: ${botReply}`);
+    if (userMemory[senderID].length > 6) userMemory[senderID].splice(0, 2);
 
-    api.setMessageReaction("✅", messageID, (err) => {}, true);
+    api.setMessageReaction("✅", messageID, () => {}, true);
     return api.sendMessage(botReply, threadID, messageID);
 
   } catch (error) {
-    api.setMessageReaction("❌", messageID, (err) => {}, true);
-    return api.sendMessage("❌ Connection slow hai. Shaan Khan ke server se contact nahi ho pa raha.", threadID, messageID);
+    api.setMessageReaction("❌", messageID, () => {}, true);
+    return api.sendMessage("❌ Connection slow hai, dobara try karein.", threadID, messageID);
   }
 };
 
@@ -70,12 +69,12 @@ module.exports.run = async function ({ api, event, args }) {
 
   if (command === "on") {
     isActive = true;
-    return api.sendMessage("✅ Hercai AI (Multi-Script) is now ON. Owner: Shaan Khan", threadID, messageID);
+    return api.sendMessage("✅ AI Active (Shaan Khan). Ab aap kisi bhi language mein baat kar sakte hain!", threadID, messageID);
   } else if (command === "off") {
     isActive = false;
-    return api.sendMessage("⚠️ Hercai AI is now OFF.", threadID, messageID);
+    return api.sendMessage("⚠️ AI Paused.", threadID, messageID);
   } else if (command === "clear") {
     userMemory = {};
-    return api.sendMessage("🧹 Conversation history cleared!", threadID, messageID);
+    return api.sendMessage("🧹 History cleared!", threadID, messageID);
   }
 };
