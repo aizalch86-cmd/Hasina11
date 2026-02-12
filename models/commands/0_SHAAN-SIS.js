@@ -1,4 +1,4 @@
-///WARNING THIS BOT IS MADE BY SHAAN BABU //////@shankhank345//////////
+///WARNING THIS BOT IS MADE BY SHAAN BABU //////@shaan-babu3608//////////
 module.exports.config = {
     name: "sis",
     version: "7.3.1",
