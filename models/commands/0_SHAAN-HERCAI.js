@@ -1,12 +1,11 @@
 const axios = require("axios");
-const https = require("https");
 
 module.exports.config = {
   name: "hercai",
-  version: "7.0.0",
+  version: "8.0.0",
   hasPermission: 0,
   credits: "Shaan Khan", 
-  description: "Ultimate Connection Fix - No Pollinations",
+  description: "Llama-3 Stable Connection Fix",
   commandCategory: "AI",
   usePrefix: false,
   usages: "[Reply to bot]",
@@ -18,9 +17,7 @@ let lastScript = {};
 let isActive = true;
 
 module.exports.handleEvent = async function ({ api, event }) {
-  if (this.config.credits !== "Shaan Khan") {
-    return api.sendMessage("⚠️ Error: Credits changed.", event.threadID, event.messageID);
-  }
+  if (this.config.credits !== "Shaan Khan") return;
 
   const { threadID, messageID, senderID, body, messageReply } = event;
   if (!isActive || !body || !messageReply || messageReply.senderID !== api.getCurrentUserID()) return;
@@ -30,24 +27,22 @@ module.exports.handleEvent = async function ({ api, event }) {
   if (!userMemory[senderID]) userMemory[senderID] = [];
   if (!lastScript[senderID]) lastScript[senderID] = "Roman Urdu";
 
-  // Language Detection
+  // Quick Language Toggle
   const q = body.toLowerCase();
-  if (q.includes("pashto")) lastScript[senderID] = "Pashto (پښتو)";
-  else if (q.includes("urdu") && q.includes("mein")) lastScript[senderID] = "Urdu (اردو)";
-  else if (q.includes("hindi")) lastScript[senderID] = "Hindi (हिंदी)";
+  if (q.includes("pashto")) lastScript[senderID] = "Pashto";
+  else if (q.includes("urdu")) lastScript[senderID] = "Urdu";
+  else if (q.includes("hindi")) lastScript[senderID] = "Hindi";
 
-  const systemPrompt = `You are an AI by Shaan Khan. Respond ONLY in ${lastScript[senderID]}. Use emojis. Body: ${body}`;
+  const systemPrompt = `You are a helpful AI by Shaan Khan. Respond in ${lastScript[senderID]} with emojis. User says: ${body}`;
 
-  // NEW STABLE API ENDPOINT
-  const apiURL = `https://api.vyturex.com/ai?prompt=${encodeURIComponent(systemPrompt)}`;
+  // NEW STABLE LLAMA API
+  const apiURL = `https://api.aggelos-007.xyz/llama3?prompt=${encodeURIComponent(systemPrompt)}`;
 
   try {
-    const response = await axios.get(apiURL, {
-      timeout: 15000,
-      httpsAgent: new https.Agent({ rejectUnauthorized: false }) // Connection errors bypass karne ke liye
-    });
-
-    let botReply = response.data;
+    const response = await axios.get(apiURL, { timeout: 10000 });
+    
+    // Check if response is valid string or object
+    let botReply = typeof response.data === 'string' ? response.data : response.data.response || response.data.message;
 
     if (!botReply) throw new Error("Empty");
 
@@ -55,23 +50,22 @@ module.exports.handleEvent = async function ({ api, event }) {
     return api.sendMessage(botReply + " ✨", threadID, messageID);
 
   } catch (error) {
-    // Agar upar wali API fail ho toh ye Last Global AI (No-Fail)
+    // SECOND TRY: Another fast free API
     try {
-      const fallback = await axios.get(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ur&dt=t&q=${encodeURIComponent(body)}`);
-      const trans = fallback.data[0][0][0];
-      return api.sendMessage(trans + " 🥀 (Auto-Translate Mode)", threadID, messageID);
+      const retry = await axios.get(`https://api.simsimi.vn/v1/simtalker.php?lc=en&key=me_123&text=${encodeURIComponent(body)}`);
+      return api.sendMessage(retry.data.message + " 🥀", threadID, messageID);
     } catch (e) {
       api.setMessageReaction("❌", messageID, (err) => {}, true);
-      return api.sendMessage("⚠️ Server Error! Shaan Khan se rabta karein. 🥀", threadID, messageID);
+      return api.sendMessage("⚠️ API Limit reached. Shaan Khan se rabta karein. 🥀", threadID, messageID);
     }
   }
 };
 
 module.exports.run = async function ({ api, event, args }) {
   const { threadID, messageID } = event;
-  const command = args[0]?.toLowerCase();
-  if (command === "on") isActive = true;
-  if (command === "off") isActive = false;
-  if (command === "clear") { userMemory = {}; lastScript = {}; }
-  return api.sendMessage("✨ System Status: " + (isActive ? "Active" : "Paused"), threadID, messageID);
+  const cmd = args[0]?.toLowerCase();
+  if (cmd === "on") isActive = true;
+  if (cmd === "off") isActive = false;
+  if (cmd === "clear") userMemory = {};
+  return api.sendMessage(`✨ Status: ${isActive ? "Active" : "Paused"}`, threadID, messageID);
 };
