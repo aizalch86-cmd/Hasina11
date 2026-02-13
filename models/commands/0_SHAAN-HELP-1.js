@@ -2,21 +2,20 @@ module.exports.config = {
   name: "help",
   version: "1.0.2",
   hasPermssion: 0,
-  credits: "SHAAN BABU",
-  description: "THIS BOT IS MR SHAAN BABU",
-  usePrefix: true,
-  commandCategory: "BOT-COMMAND-LIST",
-  usages: "HELP",
-  cooldowns: 5,
+  credits: "Leiam Nash",
+  description: "commands list",
+  commandCategory: "system",
+  usages: "module name",
+  cooldowns: 1,
   envConfig: {
     autoUnsend: false,
-    delayUnsend: 0
+    delayUnsend: 300
   }
 };
 
 module.exports.languages = {
   "en": {
-    "moduleInfo": "「 %1 」\n%2\n\n❯ Usage: %3\n❯ Category: %4\n❯ Waiting time: %5 seconds(s)\n❯ Permission: %6\n\n» Module code by %7 «",
+    "moduleInfo": "─────[ %1 ]──────\n\nUsage: %3\nCategory: %4\nWaiting time: %5 seconds(s)\nPermission: %6\nDescription: %2\n\nModule coded by %7",
     "helpList": '[ There are %1 commands on this bot, Use: "%2help nameCommand" to know how to use! ]',
     "user": "User",
         "adminGroup": "Admin group",
@@ -38,6 +37,9 @@ module.exports.handleEvent = function ({ api, event, getText }) {
 }
 
 module.exports. run = function({ api, event, args, getText }) {
+  const axios = require("axios");
+  const request = require('request');
+  const fs = require("fs-extra");
   const { commands } = global.client;
   const { threadID, messageID } = event;
   const command = commands.get((args[0] || "").toLowerCase());
@@ -45,36 +47,79 @@ module.exports. run = function({ api, event, args, getText }) {
   const { autoUnsend, delayUnsend } = global.configModule[this.config.name];
   const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
 
+  // Aapki nayi photo ka link
+  const myPhoto = "https://i.imgur.com/L8p57oI.jpeg";
+
+if (args[0] == "all") {
+    const command = commands.values();
+    var group = [], msg = "";
+    for (const commandConfig of command) {
+      if (!group.some(item => item.group.toLowerCase() == commandConfig.config.commandCategory.toLowerCase())) group.push({ group: commandConfig.config.commandCategory.toLowerCase(), cmds: [commandConfig.config.name] });
+      else group.find(item => item.group.toLowerCase() == commandConfig.config.commandCategory.toLowerCase()).cmds.push(commandConfig.config.name);
+    }
+    group.forEach(commandGroup => msg += `☂︎ ${commandGroup.group.charAt(0).toUpperCase() + commandGroup.group.slice(1)} \n${commandGroup.cmds.join(' • ')}\n\n`);
+
+    // Yahan original logic rakha hai, bas image link replace kiya hai
+    let admID = "100016828397863";
+    api.getUserInfo(parseInt(admID), (err, data) => {
+      if(err){ return console.log(err)}
+      var obj = Object.keys(data);
+      var firstname = data[obj].name.replace("@", "");
+      let callback = function () {
+        api.sendMessage({ body:`𝗖𝗼𝗺𝗺𝗮𝗻𝗱 𝗟𝗶𝘀𝘁\n\n` + msg + `\nSpamming the bot are strictly prohibited\n\nTotal Commands: ${commands.size}\n\nFor All Cmds Type help2\n\nDeveloper:\n𝙺𝙸𝙽𝙶 𝚂𝙷𝙰𝙰𝙽`, mentions: [{
+                           tag: firstname,
+                           id: admID,
+                           fromIndex: 0,
+                 }],
+            attachment: fs.createReadStream(__dirname + `/cache/472.jpg`)
+        }, event.threadID, (err, info) => {
+        fs.unlinkSync(__dirname + `/cache/472.jpg`);
+        if (autoUnsend == false) {
+            setTimeout(() => { 
+                return api.unsendMessage(info.messageID);
+            }, delayUnsend * 1000);
+        }
+    }, event.messageID);
+        }
+         request(myPhoto).pipe(fs.createWriteStream(__dirname + `/cache/472.jpg`)).on("close", callback);
+     })
+};
+
   if (!command) {
     const arrayInfo = [];
     const page = parseInt(args[0]) || 1;
-    const numberOfOnePage = 8;
+    const numberOfOnePage = 10;
     let i = 0;
-    let msg = "┏━━━━━┓\n    𝑺𝑯𝑨𝑨𝑵-𝑲𝑯𝑨𝑵                    ✧═══•❁🥱❁•═══✧\n┗━━━━━┛\n\n✧═══❁♥️𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐋𝐈𝐒𝐓♥️❁═══✧\n\n";
+    let msg = "";
 
     for (var [name, value] of (commands)) {
-      name += 
+      name += ``;
       arrayInfo.push(name);
     }
 
     arrayInfo.sort((a, b) => a.data - b.data);
 
-    const startSlice = numberOfOnePage*page - numberOfOnePage;
-    i = startSlice;
-    const returnArray = arrayInfo.slice(startSlice, startSlice + numberOfOnePage);
+    const first = numberOfOnePage * page - numberOfOnePage;
+    i = first;
+    const helpView = arrayInfo.slice(first, first + numberOfOnePage);
 
-    for (let item of returnArray) msg += `🥀  [${++i}] → ${global.config.PREFIX}${item} ♥️\n`; 
+    for (let cmds of helpView) msg += `「 ${++i} 」📂${prefix}${cmds}\n`;
 
-    const text = `PAGE 🥀   [${page}/${Math.ceil(arrayInfo.length/numberOfOnePage)}]\n\𝐎𝐔𝐑 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐊𝐄 𝐋𝐈𝐘𝐀 𝐇𝐄𝐋𝐏-2 𝐋𝐈𝐊𝐇𝐎 \𝐓𝐇𝐈𝐒 𝐁𝐎𝐓 𝐈𝐒 𝐌𝐄𝐃𝐄 𝐁𝐘  𝐒𝐇𝐀𝐀𝐍-𝐊𝐇𝐀𝐍🙂✌️\n\n\n\n❁ ═════ ❃𝑺𝑯𝑨𝑨𝑵-𝑲𝑯𝑨𝑵❃ ═════ ❁`;
-    return api.sendMessage(msg + "\n" + text, threadID, async (error, info) => {
-      if (autoUnsend) {
-        await new Promise(resolve => setTimeout(resolve, delayUnsend * 10000));
-        return api.unsendMessage(info.messageID);
-      } else return;
-    });
-  }
+    const siu = `★𝗖𝗼𝗺𝗺𝗮𝗻𝗱 𝗟𝗶𝘀𝘁★`;
+    const text = `\n𝐏𝐀𝐆𝐄 (${page}/${Math.ceil(arrayInfo.length/numberOfOnePage)})\nFor All Cmds Type Help2\n\n𝗠𝗮𝗱𝗲 𝗕𝘆: 𝚂𝙷𝙰𝙰𝙽 𝙿𝙰𝚃𝙷𝙰𝙽\n\n★᭄𝗖𝗿𝗲𝗱𝗶𝘁'ਸ  ཫ    ★𝐒𝐇𝐀𝐀𝐍 𝐊𝐇𝐀𝐍★`;
+    
+    // Purane links hata kar aapki photo set kar di
+    var link = [myPhoto];
+    
+    var callback = () => api.sendMessage({ body: siu + "\n\n" + msg  + text, attachment: fs.createReadStream(__dirname + "/cache/leiamnashelp.jpg")}, event.threadID, () => fs.unlinkSync(__dirname + "/cache/leiamnashelp.jpg"), event.messageID);
+    return request(encodeURI(link[Math.floor(Math.random() * link.length)])).pipe(fs.createWriteStream(__dirname + "/cache/leiamnashelp.jpg")).on("close", () => callback());
+  } 
 
-  return
+  const leiamname = getText("moduleInfo", command.config.name, command.config.description, `${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits);
 
-api.sendMessage(getText("moduleInfo", command.config.name, command.config.description, `${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits), threadID, messageID);
+  // Specific command help ke liye bhi aapki photo
+  var link = [myPhoto];
+  
+    var callback = () => api.sendMessage({ body: leiamname, attachment: fs.createReadStream(__dirname + "/cache/leiamnashelp.jpg")}, event.threadID, () => fs.unlinkSync(__dirname + "/cache/leiamnashelp.jpg"), event.messageID);
+    return request(encodeURI(link[Math.floor(Math.random() * link.length)])).pipe(fs.createWriteStream(__dirname + "/cache/leiamnashelp.jpg")).on("close", () => callback());
 };
