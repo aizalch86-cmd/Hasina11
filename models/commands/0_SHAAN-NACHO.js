@@ -17,7 +17,7 @@ module.exports.handleEvent = function({ api, event, client, __GLOBAL }) {
 react.includes("naco") ||
 react.includes("NACO")) {
     var msg = {
-        body: `𝐍𝐀𝐂𝐇𝐎 𝐌𝐄𝐑𝐈 𝐉𝐀𝐀𝐍 𝐍𝐀𝐂𝐇𝐎 🙂🤟 ❜`,attachment: fs.createReadStream(__dirname + `/ARIF-BABU/DANCE.gif`)
+        body: `𝐍𝐀𝐂𝐇𝐎 𝐌𝐄𝐑𝐈 𝐉𝐀𝐀𝐍 𝐍𝐀𝐂𝐇𝐎 🙂🤟 ❜`,attachment: fs.createReadStream(__dirname + `/SHAAN-KHAN/DANCE.gif`)
       }
       api.sendMessage(msg, threadID, messageID);
     api.setMessageReaction("🥳", event.messageID, (err) => {}, true)
